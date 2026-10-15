@@ -1,0 +1,15 @@
+plugins {
+    id 'base'
+}
+
+task assembleDebug(type: Exec) {
+    environment 'PATH', "${projectDir}/node_modules/.bin:${System.getenv('PATH')}"
+    commandLine 'npm', 'run', 'build'
+}
+
+task lint(type: Exec) {
+    environment 'PATH', "${projectDir}/node_modules/.bin:${System.getenv('PATH')}"
+    commandLine 'npm', 'run', 'lint'
+}
+
+build.dependsOn assembleDebug
