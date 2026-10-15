@@ -67,3 +67,5 @@ fastlane/readme.md
 
 # local Ubooquity test server (Docker volumes, contains credentials)
 .docker/
+node_modules/
+dist/
