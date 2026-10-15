@@ -6,6 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -21,8 +24,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-
-      - uses: android-actions/setup-android@v3
 
       - name: Install and build web app
         run: |
@@ -43,3 +44,14 @@ jobs:
           name: KubooNG-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Publish GitHub release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(node -p "require('./package.json').version")
+          cp android/app/build/outputs/apk/debug/app-debug.apk "KubooNG-$V-debug.apk"
+          gh release view "v$V" >/dev/null 2>&1 || gh release create "v$V" --target "$GITHUB_SHA" \
+            --title "KubooNG v$V (debug APK)" --notes "Debug APK built by GitHub Actions (Capacitor), signed with the debug key."
+          gh release upload "v$V" "KubooNG-$V-debug.apk" --clobber
